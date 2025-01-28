@@ -1,7 +1,9 @@
 import { View, StyleSheet, Image, Text ,Button} from "react-native";
 
 export default function Card({ item }) {
-    
+    function handlePress() {
+        console.log("Card pressed");
+    }
     return (
         <View style={styles.container}>
             
@@ -46,7 +48,7 @@ export default function Card({ item }) {
                     {item.price}$
                 </Text>
 
-                <Button title="I'll buy"/>
+                <Button title="I'll buy" onPress={handlePress} />
 
             </View>
         </View>

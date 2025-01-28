@@ -7,19 +7,49 @@ import {
   TouchableOpacity,
   TextInput,
   Button,
+  Alert,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 export default function SortOptions({ onSort, onFilter, onLimitChange }) {
-  const [modalVisible, setModalVisible] = useState(false); // Состояние для модального окна
-  const [filterCategory, setFilterCategory] = useState(""); // Категория для фильтрации
-  const [productLimit, setProductLimit] = useState(""); // Лимит продуктов
+  const [modalVisible, setModalVisible] = useState(false);
+  const [filterCategory, setFilterCategory] = useState("");
+  const [productLimit, setProductLimit] = useState("");
+
+  const handleSort = () => {
+    onSort();
+    setModalVisible(false);
+  };
+
+  const handleFilter = () => {
+    if (!filterCategory.trim()) {
+      Alert.alert("Ошибка", "Введите категорию для фильтрации");
+      return;
+    }
+    onFilter(filterCategory.trim());
+    setFilterCategory("");
+    setModalVisible(false);
+  };
+
+  const handleLimitChange = () => {
+    const limit = parseInt(productLimit, 10);
+    if (isNaN(limit) || limit <= 0) {
+      Alert.alert("Ошибка", "Введите корректное число");
+      return;
+    }
+    onLimitChange(limit);
+    setProductLimit("");
+    setModalVisible(false);
+  };
 
   return (
-    <View>
-      {/* Кнопка с иконкой для открытия сортировок */}
+    <View style={styles.container}>
+      {/* Фильтр-кнопка */}
       <TouchableOpacity
-        onPress={() => setModalVisible(true)}
+        onPress={() => {
+          console.log("Кнопка фильтра нажата!");
+          setModalVisible(true);
+        }}
         style={styles.iconButton}
       >
         <Icon name="filter" size={30} color="#333" />
@@ -36,61 +66,30 @@ export default function SortOptions({ onSort, onFilter, onLimitChange }) {
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Сортировка и фильтры</Text>
 
-            {/* Сортировка по цене */}
-            <Button
-              title="Сортировать по цене"
-              onPress={() => {
-                onSort();
-                setModalVisible(false); // Закрыть окно после выбора
-              }}
-            />
+            <Button title="Сортировать по цене" onPress={handleSort} />
 
-            {/* Фильтрация по категории */}
             <View style={styles.inputGroup}>
               <TextInput
                 placeholder="Введите категорию"
                 value={filterCategory}
-                onChangeText={(text) => setFilterCategory(text)}
+                onChangeText={setFilterCategory}
                 style={styles.input}
               />
-              <Button
-                title="Фильтровать"
-                onPress={() => {
-                  onFilter(filterCategory);
-                  setModalVisible(false); // Закрыть окно после выбора
-                }}
-              />
+              <Button title="Фильтровать" onPress={handleFilter} />
             </View>
 
-            {/* Изменение лимита продуктов */}
             <View style={styles.inputGroup}>
               <TextInput
                 placeholder="Количество продуктов"
                 value={productLimit}
-                onChangeText={(text) => setProductLimit(text)}
+                onChangeText={setProductLimit}
                 style={styles.input}
                 keyboardType="numeric"
               />
-              <Button
-                title="Применить лимит"
-                onPress={() => {
-                  const limit = parseInt(productLimit, 10);
-                  if (!isNaN(limit) && limit > 0) {
-                    onLimitChange(limit);
-                  } else {
-                    alert("Введите корректное число");
-                  }
-                  setModalVisible(false); // Закрыть окно после выбора
-                }}
-              />
+              <Button title="Применить лимит" onPress={handleLimitChange} />
             </View>
 
-            {/* Кнопка закрытия */}
-            <Button
-              title="Закрыть"
-              onPress={() => setModalVisible(false)}
-              color="red"
-            />
+            <Button title="Закрыть" onPress={() => setModalVisible(false)} color="red" />
           </View>
         </View>
       </Modal>
@@ -99,10 +98,13 @@ export default function SortOptions({ onSort, onFilter, onLimitChange }) {
 }
 
 const styles = StyleSheet.create({
-  iconButton: {
+  container: {
     position: "absolute",
     top: 20,
     right: 20,
+    zIndex: 10, // Убедиться, что иконка не перекрывается
+  },
+  iconButton: {
     backgroundColor: "#fff",
     padding: 10,
     borderRadius: 50,
@@ -137,4 +139,3 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
 });
-
